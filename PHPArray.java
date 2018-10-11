@@ -15,20 +15,53 @@ public class PHPArray<V> implements Iterable<V> {
 	private int hashnumber;
 	
 	@SuppressWarnings("unchecked")
-	public PHPArray(){
-		hashtable = (Node<V>[]) new Node<?>[1];
+	public PHPArray(int capacity){
+		hashtable = (Node<V>[]) new Node<?>[capacity];
 		length =0;
-		hashnumber =1;
+		hashnumber =capacity;
 	}
 	
 	public void put(String s, V data) {
 		if(s.equals("")||data == null) return;
 		Node<V> n = putNode(s,data);
-		if(length/hashtable.length>=)
+		if(length/hashtable.length>=0.5)
 			resizeHashTable();
+		hashtable[getLocation(n,hashtable)]=n;
+		length++;
 		
 	}
 	
+	public void put(int s, V data) {
+		if(data == null) return;
+		Node<V> n = putNode(Integer.toString(s),data);
+		if(length/hashtable.length>=0.5)
+			resizeHashTable();
+		hashtable[getLocation(n,hashtable)]=n;
+		length++;
+		
+	}
+
+	private void resizeHashTable() {
+		hashnumber*=2;
+		@SuppressWarnings("unchecked")
+		PHPArray.Node<V>[] temp = (Node<V>[]) new Node<?>[hashnumber];
+		for(int i =0;i<hashtable.length;i++) {
+			if(hashtable[i]!=null)
+				temp[getLocation(hashtable[i],temp)]=hashtable[i];
+		}
+		hashtable=temp;
+	}
+	
+	private int getLocation(Node<V> n, Node<V>[] table) {
+		int index = n.key.hashCode()& table.length;
+		while(table[index]==null) {
+			index++;
+			if(index>=table.length)
+				index=0;
+		}
+		return index;
+	}
+
 	private Node<V> putNode(String s, V data){
 		Node<V> n = new Node<V>(s,data);
 		if(front==null) {
@@ -38,7 +71,6 @@ public class PHPArray<V> implements Iterable<V> {
 			last.next =n;
 			last =n;
 		}
-		length++;
 		return n;
 	}
 	
