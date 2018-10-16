@@ -8,7 +8,7 @@ import java.util.Iterator;
  * @author gwood
  *
  */
-public class PHPArray<V> implements Iterable<V> {
+public class PHPArray<V extends Comparable<V>> implements Iterable<V> {
 	private Node<V> front,last;
 	private PHPArray.Node<V>[] hashtable;
 	private int length;
@@ -113,7 +113,7 @@ public class PHPArray<V> implements Iterable<V> {
 		int index = s.hashCode()%hashnumber;
 		while(hashtable[index]!=null) {
 			if(hashtable[index].key.equals(s))		//The node at index has the same key as the argument
-				return hashtable[index].data;
+				return hashtable[index].value;
 			else
 				index++;
 			if(index>=hashtable.length)
@@ -131,7 +131,7 @@ public class PHPArray<V> implements Iterable<V> {
 		int index = Integer.toString(s).hashCode()%hashnumber;	//Integer converted to string
 		while(hashtable[index]!=null) {
 			if(hashtable[index].key.equals(s))
-				return hashtable[index].data;
+				return hashtable[index].value;
 			else
 				index++;
 			if(index>=hashtable.length)
@@ -148,21 +148,72 @@ public class PHPArray<V> implements Iterable<V> {
 		return hashtable.length;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public void sort() {
+		_quickSort(front,last);
+		hashtable=(Node<V>[]) new Node<?>[hashnumber];
+		Node<V> current = front;
+		for(int i=0;i<length;i++) {
+			current.key=Integer.toString(i);
+			hashtable[i]=current;
+			current=current.next;
+		}
+	}
+	
+	private Node<V> partition(Node<V> l,Node<V> h) { 
+       // set pivot as h element 
+        V x = h.value; 
+          
+        // similar to i = l-1 for array implementation 
+        Node<V> i = l.previous; 
+          
+        // Similar to "for (int j = l; j <= h- 1; j++)" 
+        for(Node<V> j=l; j!=h; j=j.next) { 
+            if(j.compareTo(x) >= 0) { 
+                // Similar to i++ for array 
+                i = (i==null) ? l : i.next; 
+                V temp = i.value; 
+                i.value = j.value; 
+                j.value = temp; 
+            } 
+        } 
+        i = (i==null) ? l : i.next;  // Similar to i++ 
+        V temp = i.value; 
+        i.value = h.value; 
+        h.value = temp; 
+        return i; 
+    } 
+      
+    /* A recursive implementation of quicksort for linked list */
+    private void _quickSort(Node<V> l,Node<V> h) 
+    { 
+        if(h!=null && l!=h && l!=h.next){ 
+            Node<V> temp = partition(l,h); 
+            _quickSort(l,temp.previous); 
+            _quickSort(temp.next,h); 
+        } 
+    }
+	
 	@Override
 	public Iterator<V> iterator() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
-	private static class Node<V>{
+	private static class Node<V extends Comparable<V>> implements Comparable<V>{
 		String key;
-		V data;
-		Node next;
-		Node previous;
+		V value;
+		Node<V> next;
+		Node<V> previous;
 		
 		public Node(String k, V data) {
 			key=k;
-			this.data=data;
+			value=data;
+		}
+
+		@Override
+		public int compareTo(V arg0) {
+			return arg0.compareTo(value);
 		}
 	}
 	
