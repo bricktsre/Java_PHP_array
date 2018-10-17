@@ -30,7 +30,6 @@ public class PHPArray<V  extends Comparable<V>> implements Iterable<V> {
 	 * @param s		the key of the pair
 	 * @param data  data of the pair
 	 */
-	@SuppressWarnings("unchecked")
 	public void put(String s, V data) {
 		if(s.equals("")||data == null) return;			//Return if input is void
 		Node<V> n = putNode(s,data);					//Create a node and put it into the linkedlist
@@ -156,6 +155,50 @@ public class PHPArray<V  extends Comparable<V>> implements Iterable<V> {
 				index=0;
 		}
 		return null;
+	}
+	
+	public void unset(String s) {
+		if(get(s)==null) return;
+		int index = s.hashCode() % hashnumber;
+		while(!hashtable[index].key.equals(s))
+			index=(index+1)%hashnumber;
+		
+		hashtable[index].previous.next=hashtable[index].next;
+		hashtable[index].next.previous=hashtable[index].previous;
+		length--;
+		
+		index = (index+1)%hashnumber;
+		while(hashtable[index]!=null) {
+			String key = hashtable[index].key;
+			V value = hashtable[index].value;
+			hashtable[index].previous.next=hashtable[index].next;
+			hashtable[index].next.previous=hashtable[index].previous;
+			length--;
+			put(key,value);
+		}
+	}
+	
+	public void unset(int a) {
+		String s = Integer.toString(a);
+		if(get(s)==null) return;
+		
+		int index = s.hashCode() % hashnumber;
+		while(!hashtable[index].key.equals(s))
+			index=(index+1)%hashnumber;
+		
+		hashtable[index].previous.next=hashtable[index].next;
+		hashtable[index].next.previous=hashtable[index].previous;
+		length--;
+		
+		index = (index+1)%hashnumber;
+		while(hashtable[index]!=null) {
+			String key = hashtable[index].key;
+			V value = hashtable[index].value;
+			hashtable[index].previous.next=hashtable[index].next;
+			hashtable[index].next.previous=hashtable[index].previous;
+			length--;
+			put(key,value);
+		}
 	}
 	
 	/**Returns the size of the hashtable
