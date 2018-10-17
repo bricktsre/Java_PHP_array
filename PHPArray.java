@@ -9,7 +9,7 @@ import java.util.Iterator;
  * @author gwood
  *
  */
-public class PHPArray<V extends Comparable<V>> implements Iterable<V> {
+public class PHPArray<V  extends Comparable<V>> implements Iterable<V> {
 	private Node<V> front,last;
 	private PHPArray.Node<V>[] hashtable;
 	private int length;
@@ -193,6 +193,10 @@ public class PHPArray<V extends Comparable<V>> implements Iterable<V> {
 		}
 	}
 	
+	public void asort() {
+		_quickSort(front,last);
+	}
+	
 	private Node<V> partition(Node<V> l,Node<V> h) { 
        // set pivot as h element 
         V x = h.value; 
@@ -202,7 +206,7 @@ public class PHPArray<V extends Comparable<V>> implements Iterable<V> {
           
         // Similar to "for (int j = l; j <= h- 1; j++)" 
         for(Node<V> j=l; j!=h; j=j.next) { 
-            if(j.compareTo(x) >= 0) { 
+            if(j.compareTo(h) >= 0) { 
                 // Similar to i++ for array 
                 i = (i==null) ? l : i.next; 
                 V temp = i.value; 
@@ -247,28 +251,26 @@ public class PHPArray<V extends Comparable<V>> implements Iterable<V> {
     	return list;
     }
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Iterator<V> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ListIterator(front);
 	}
 	
-	private static class Node<V extends Comparable<V>> implements Comparable<V>{
+	private static class Node<V extends Comparable<V>> implements Comparable<Node<V>>{
 		String key;
 		V value;
 		Node<V> next;
 		Node<V> previous;
-
 		
 		public Node(String k, V data) {
 			key=k;
 			value=data;
-
 		}
 
 		@Override
-		public int compareTo(V arg0) {
-			return arg0.compareTo(value);
+		public int compareTo(Node<V> n) {
+			return n.value.compareTo(value);
 		}
 	}
 	
@@ -280,6 +282,27 @@ public class PHPArray<V extends Comparable<V>> implements Iterable<V> {
 			key=s;
 			this.value=value;
 		}
+	}
+	
+	public class ListIterator<V extends Comparable<V>> implements Iterator<V>{
+		private Node<V> n;
+		
+		public ListIterator(Node<V> n) {
+			this.n=n;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return (n.next!=null); 
+		}
+
+		@Override
+		public V next() {
+			V temp = n.value;
+			n=n.next;
+			return temp;
+		}
+		
 	}
 
 }
