@@ -14,12 +14,14 @@ public class PHPArray<V  extends Comparable<V>> implements Iterable<V> {
 	private PHPArray.Node<V>[] hashtable;
 	private int length;
 	private int hashnumber;
+	private Node<V> eachNode;
 	
 	@SuppressWarnings("unchecked")
 	public PHPArray(int capacity){
 		hashtable = (Node<V>[]) new Node<?>[capacity];
 		length =0;
 		hashnumber =capacity;
+		eachNode=front;
 	}
 	
 	/**Put the key and data into the hashtable and linkedlist. If the key exists
@@ -164,12 +166,16 @@ public class PHPArray<V  extends Comparable<V>> implements Iterable<V> {
 		return hashtable.length;
 	}
 	
-	public Pair each() {
-		
+	public Pair<V> each() {
+		if(eachNode==null)
+			return null;
+		Pair<V> p = new Pair<V>(eachNode.key,eachNode.value);
+		eachNode=eachNode.next;
+		return p;
 	}
 	
 	public void reset() {
-		
+		eachNode=front;
 	}
 	
 	public void showTable() {
