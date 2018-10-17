@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -226,6 +227,25 @@ public class PHPArray<V extends Comparable<V>> implements Iterable<V> {
         } 
     }
 
+    public ArrayList<String> keys(){
+    	ArrayList<String> list = new ArrayList<String>(length);
+    	Node<V> current = front;
+    	for(int i=0;i<length;i++) {
+    		list.add(current.key);
+    		current=current.next;
+    	}
+    	return list;
+    }
+    
+    public ArrayList<V> values(){
+    	ArrayList<V> list = new ArrayList<V>(length);
+    	Node<V> current = front;
+    	for(int i=0;i<length;i++) {
+    		list.add(current.value);
+    		current=current.next;
+    	}
+    	return list;
+    }
 	
 	@Override
 	public Iterator<V> iterator() {
