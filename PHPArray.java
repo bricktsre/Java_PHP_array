@@ -21,17 +21,25 @@ public class PHPArray<V> implements Iterable<V> {
 		hashnumber =capacity;
 	}
 	
-	/**Put the key and data into the hashtable and linkedlist
+	/**Put the key and data into the hashtable and linkedlist. If the key exists
+	 * the value associated with it is changed to the data argument
 	 * 
 	 * @param s		the key of the pair
 	 * @param data  data of the pair
 	 */
+	@SuppressWarnings("unchecked")
 	public void put(String s, V data) {
 		if(s.equals("")||data == null) return;			//Return if input is void
 		Node<V> n = putNode(s,data);					//Create a node and put it into the linkedlist
 		if(length/hashtable.length>=0.5)
 			resizeHashTable();							//Resize the hashtable if over half full
-		hashtable[getLocation(n,hashtable)]=n;			//Put into the hashtable
+		int index = getLocation(n,hashtable);
+		if(hashtable[index]!=null) {				//Update value associated with key in the linked list
+			hashtable[index].value = data;
+			last=last.previous;						//delete the last entry in the linkedlist since it is no longer needed
+			length--;
+		}else
+			hashtable[index]=n;			//Put into the hashtable
 		length++;
 		
 	}
@@ -47,7 +55,13 @@ public class PHPArray<V> implements Iterable<V> {
 		Node<V> n = putNode(Integer.toString(s),data);		//Integer converted to a string
 		if(length/hashtable.length>=0.5)
 			resizeHashTable();
-		hashtable[getLocation(n,hashtable)]=n;
+		int index = getLocation(n,hashtable);
+		if(hashtable[index]!=null) {				//Update value associated with key in the linked list
+			hashtable[index].value = data;
+			last=last.previous;						//delete the last entry in the linkedlist since it is no longer needed
+			length--;
+		}else
+			hashtable[index]=n;			//Put into the hashtable
 		length++;
 		
 	}
@@ -78,6 +92,7 @@ public class PHPArray<V> implements Iterable<V> {
 	private int getLocation(Node<V> n, Node<V>[] table) {
 		int index = n.key.hashCode()% table.length;
 		while(table[index]==null) {
+			if(table[index].key==n.key) return index;
 			index++;
 			if(index>=table.length)			//Wrap around to the front of the table
 				index=0;
@@ -113,7 +128,7 @@ public class PHPArray<V> implements Iterable<V> {
 		int index = s.hashCode()%hashnumber;
 		while(hashtable[index]!=null) {
 			if(hashtable[index].key.equals(s))		//The node at index has the same key as the argument
-				return hashtable[index].data;
+				return hashtable[index].value;
 			else
 				index++;
 			if(index>=hashtable.length)
@@ -131,7 +146,7 @@ public class PHPArray<V> implements Iterable<V> {
 		int index = Integer.toString(s).hashCode()%hashnumber;	//Integer converted to string
 		while(hashtable[index]!=null) {
 			if(hashtable[index].key.equals(s))
-				return hashtable[index].data;
+				return hashtable[index].value;
 			else
 				index++;
 			if(index>=hashtable.length)
@@ -148,6 +163,23 @@ public class PHPArray<V> implements Iterable<V> {
 		return hashtable.length;
 	}
 	
+	public Pair each() {
+		
+	}
+	
+	public void reset() {
+		
+	}
+	
+	public void showTable() {
+		for(int i=0;i<hashtable.length;i++) {
+			if(hashtable[i]!=null)
+				System.out.println(i+": Key: "+hashtable[i].key+" Value: " + hashtable[i].value);
+			else
+				System.out.println(i + ": null");
+		}
+	}
+	
 	@Override
 	public Iterator<V> iterator() {
 		// TODO Auto-generated method stub
@@ -156,18 +188,24 @@ public class PHPArray<V> implements Iterable<V> {
 	
 	private static class Node<V>{
 		String key;
-		V data;
+		V value;
 		Node next;
 		Node previous;
 		
 		public Node(String k, V data) {
 			key=k;
-			this.data=data;
+			value=data;
 		}
 	}
 	
 	public static class Pair<V>{
+		String key;
+		V value;
 		
+		public Pair(String s, V value) {
+			key=s;
+			this.value=value;
+		}
 	}
 
 }
