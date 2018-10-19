@@ -145,19 +145,25 @@ public class PHPArray<V> implements Iterable<V> {
 		return get(Integer.toString(s));
 	}
 
+	/**
+	 * Deletes the node with the argument key. If key isn't found it does nothing.
+	 * Rehashes any keys clustered after the deleted key.
+	 * 
+	 * @param s	the key of key,value pair to delete
+	 */
 	public void unset(String s) {
-		if (get(s) == null)
-			return;
-		int index = (s.hashCode()& 0x7fffffff) % hashnumber;
-		while (!hashtable[index].key.equals(s))
+		if (get(s) == null)				//If key isn't in the table do nothing
+			return;		
+		int index = (s.hashCode()& 0x7fffffff) % hashnumber;		//start looking for the key at this index
+		while (!hashtable[index].key.equals(s))						//Iterate through the table looking for the matching key
 			index = (index + 1) % hashnumber;
 
-		deleteNode(index);
-		hashtable[index]=null;
-		length--;
+		deleteNode(index);									//Delete the node holding the key,value pair
+		hashtable[index]=null;								//Remove the reference to the node in the hashtable
+		length--;											
 
 		index = (index + 1) % hashnumber;
-		while (hashtable[index] != null) {
+		while (hashtable[index] != null) {					//Goes through the cluster after the found key and rehash
 			Node<V> n = hashtable[index];
 			hashtable[index]=null;
 			System.out.println("Key: "+n.key+" rehashed...");
@@ -166,18 +172,29 @@ public class PHPArray<V> implements Iterable<V> {
 		}
 	}
 
+	/**
+	 * Same as above but the key is inputed as an int and must be converted to a string.
+	 * 
+	 * @param a key of the key,value pair to delete
+	 */
 	public void unset(int a) {
 		unset(Integer.toString(a));
 	}
 	
+	/**
+	 * Deletes a node from the linked list stored in the hashtable. Changes the previous and next pointers
+	 * of the nodes before and after it.
+	 * 
+	 * @param index the index of the node in the hashtable
+	 */
 	private void deleteNode(int index) {
-		if(hashtable[index].previous==null) {
+		if(hashtable[index].previous==null) {					//Node is front of the list
 			hashtable[index].next.previous=null;
 			front=hashtable[index].next;
 			return;
 		}else
 			hashtable[index].next.previous=hashtable[index].previous;
-		if(hashtable[index].next==null) {
+		if(hashtable[index].next==null) {						//Node is end of the list
 			hashtable[index].previous.next=null;
 			last=hashtable[index].previous;
 		}else
@@ -193,6 +210,12 @@ public class PHPArray<V> implements Iterable<V> {
 		return length;
 	}
 
+	/**
+	 * Returns a Pair object created from the current node and advances the node down the list.
+	 * Very similar to an iterator
+	 * 
+	 * @return	Pair object created from the node or null if the current node is null
+	 */
 	public Pair<V> each() {
 		if (eachNode == null)
 			return null;
@@ -201,10 +224,16 @@ public class PHPArray<V> implements Iterable<V> {
 		return p;
 	}
 
+	/**
+	 * Resets the iteration of each back to the head of the list
+	 */
 	public void reset() {
 		eachNode = front;
 	}
 
+	/**
+	 * Prints out the contents of the entire hashtable
+	 */
 	public void showTable() {
 		System.out.println("Raw Hash Table Contents:");
 		for (int i = 0; i < hashtable.length; i++) {
@@ -215,22 +244,35 @@ public class PHPArray<V> implements Iterable<V> {
 		}
 	}
 
+	/**
+	 * Sorts the linkedlist using quicksort. Values of the keys are changed to 0-(length-1) and rehashed
+	 */
 	@SuppressWarnings("unchecked")
 	public void sort() {
-		_quickSort(front, last);
+		_quickSort(front, last);					//Sorting of the list
 		hashtable = (Node<V>[]) new Node<?>[hashnumber];
 		Node<V> current = front;
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < length; i++) {			//Reassignment of keys and rehashing
 			current.key = Integer.toString(i);
 			hashtable[getLocation(current,hashtable)] = current;
 			current = current.next;
 		}
 	}
 
+	/**
+	 * Sort the linkedlist but does not change the keys
+	 */
 	public void asort() {
 		_quickSort(front, last);
 	}
 
+	/**
+	 * Partioning needed for quicksort
+	 * 
+	 * @param l	first node in the partition
+	 * @param h pivot node being the last value in the partition
+	 * @return pivot node after partitioning
+	 */
 	private Node<V> partition(Node<V> l, Node<V> h) {
 		// set pivot as h element
 		V x = h.value;
@@ -261,7 +303,12 @@ public class PHPArray<V> implements Iterable<V> {
 		return i;
 	}
 
-	/* A recursive implementation of quicksort for linked list */
+	/**
+	 * A recursive implementation of quicksort for linked list
+	 * 
+	 * @param l	head node
+	 * @param h	tail node
+	 */
 	private void _quickSort(Node<V> l, Node<V> h) {
 		if (h != null && l != h && l != h.next) {
 			Node<V> temp = partition(l, h);
@@ -270,6 +317,11 @@ public class PHPArray<V> implements Iterable<V> {
 		}
 	}
 
+	/**
+	 * Returns an arraylist of all the keys
+	 * 
+	 * @return arraylist of keys
+	 */
 	public ArrayList<String> keys() {
 		ArrayList<String> list = new ArrayList<String>(length);
 		Node<V> current = front;
@@ -280,6 +332,11 @@ public class PHPArray<V> implements Iterable<V> {
 		return list;
 	}
 
+	/**
+	 * Returns an arraylist of the values
+	 * 
+	 * @return arraylist of values
+	 */
 	public ArrayList<V> values() {
 		ArrayList<V> list = new ArrayList<V>(length);
 		Node<V> current = front;
@@ -290,6 +347,11 @@ public class PHPArray<V> implements Iterable<V> {
 		return list;
 	}
 
+	/**
+	 * Flips the keys and values inside each node
+	 * 
+	 * @return new PHPArray of the flipped array
+	 */
 	@SuppressWarnings("unchecked")
 	public PHPArray<String> array_flip() {
 		if(!(front.value instanceof String))
@@ -305,12 +367,21 @@ public class PHPArray<V> implements Iterable<V> {
 		}
 	}
 	
+	/**
+	 * Creates and returns an iterator
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Iterator<V> iterator() {
 		return new ListIterator(front);
 	}
 
+	/**
+	 * Node classes to make a linkedlist and hold the key,value pairs
+	 * @author Greg
+	 *
+	 * @param <V>
+	 */
 	private static class Node<V> implements Comparable<Node<V>> {
 		String key;
 		V value;
@@ -328,6 +399,12 @@ public class PHPArray<V> implements Iterable<V> {
 		}
 	}
 
+	/**
+	 * Pair class that goes along with each method
+	 * @author Greg
+	 *
+	 * @param <V>
+	 */
 	public static class Pair<V> {
 		String key;
 		V value;
@@ -338,6 +415,12 @@ public class PHPArray<V> implements Iterable<V> {
 		}
 	}
 
+	/**
+	 *Iterator for the linkedlist
+	 * @author Greg
+	 *
+	 * @param <V>
+	 */
 	public class ListIterator<V> implements Iterator<V> {
 		private Node<V> n;
 
