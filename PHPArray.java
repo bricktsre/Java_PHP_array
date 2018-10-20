@@ -1,12 +1,5 @@
-
 import java.util.ArrayList;
-
-
 import java.util.Iterator;
-
-/**
- * 
- */
 
 /**
  * @author gwood
@@ -356,7 +349,6 @@ public class PHPArray<V> implements Iterable<V> {
 	 * 
 	 * @return new PHPArray of the flipped array
 	 */
-	@SuppressWarnings("unchecked")
 	public PHPArray<String> array_flip() {
 		if(!(front.value instanceof String))
 			throw new ClassCastException();
